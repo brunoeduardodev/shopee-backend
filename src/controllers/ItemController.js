@@ -26,12 +26,12 @@ class ItemController {
 
     const newItemData = req.body
     if (req.file) {
-      const item = await Item.findOne({ where: id })
-      fs.rm(path.resolve(__dirname, '..', '..', item.image_url))
+      const item = await Item.findOne({ where: { id } })
+
+      fs.unlinkSync(path.resolve(__dirname, '..', '..', item.image_url))
       newItemData.image_url = 'uploads/' + req.file.filename
     }
-    console.log(id)
-    console.log(newItemData)
+
     try {
       await Item.update(newItemData, { where: { id } })
       const item = await Item.findOne({ where: { id } })
@@ -45,8 +45,7 @@ class ItemController {
   async delete (req, res) {
     const { id } = req.params
     const item = await Item.findOne({ where: { id } })
-    console.log('Item: ', item)
-    console.log('Url: ', path.resolve(__dirname, '..', '..', item.image_url))
+
     fs.unlinkSync(path.resolve(__dirname, '..', '..', item.image_url))
     try {
       await Item.destroy({ where: { id } })
