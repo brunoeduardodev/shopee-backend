@@ -1,4 +1,7 @@
 const Express = require('express')
+const path = require('path')
+const multer = require('multer')
+const multerConfig = require('./config/multer')
 
 const ItemController = require('./controllers/ItemController')
 const UserController = require('./controllers/UserController')
@@ -14,10 +17,14 @@ const authController = new AuthController()
 
 const routes = Express.Router()
 
+const upload = multer(multerConfig)
+
+routes.use('/uploads', Express.static(path.resolve(__dirname, '..', 'uploads')))
+
 // Items
 routes.get('/items', itemController.index)
-routes.post('/items', AuthToken, itemController.store)
-routes.put('/items/:id', AuthToken, itemController.update)
+routes.post('/items', AuthToken, upload.single('image'), itemController.store)
+routes.put('/items/:id', upload.single('image'), AuthToken, itemController.update)
 routes.delete('/items/:id', AuthToken, itemController.delete)
 
 // Users

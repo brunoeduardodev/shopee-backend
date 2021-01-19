@@ -12,6 +12,10 @@ class AuthController {
           email
         }
       })
+
+      if (user === null) {
+        res.sendStatus(401)
+      }
       const authorized = await bcrypt.compare(password, user.password_hash)
 
       console.log('Authorized: ', authorized)

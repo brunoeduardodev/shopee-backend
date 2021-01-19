@@ -1,4 +1,6 @@
 const Item = require('../models/Item')
+const fs = require('fs')
+const path = require('path')
 
 class ItemController {
   async index (req, res) {
@@ -8,9 +10,13 @@ class ItemController {
 
   async store (req, res) {
     try {
-      const item = await Item.create(req.body)
+      // eslint-disable-next-line camelcase
+      const image_url = 'uploads/' + req.file.filename
+      console.log('Image url: ', image_url)
+      const item = await Item.create({ ...req.body, image_url: image_url })
       res.json(item)
     } catch (err) {
+      console.log('Error: ', err)
       res.sendStatus(400)
     }
   }
@@ -19,6 +25,11 @@ class ItemController {
     const { id } = req.params
 
     const newItemData = req.body
+    if (req.file) {
+      const item = await Item.findOne({ where: id })
+      fs.rm(path.resolve(__dirname, '..', '..', item.image_url))
+      newItemData.image_url = 'uploads/' + req.file.filename
+    }
     console.log(id)
     console.log(newItemData)
     try {
@@ -33,8 +44,12 @@ class ItemController {
 
   async delete (req, res) {
     const { id } = req.params
+    const item = await Item.findOne({ where: { id } })
+    console.log('Item: ', item)
+    console.log('Url: ', path.resolve(__dirname, '..', '..', item.image_url))
+    fs.unlinkSync(path.resolve(__dirname, '..', '..', item.image_url))
     try {
-      Item.destroy({ where: { id } })
+      await Item.destroy({ where: { id } })
       res.sendStatus(200)
     } catch (error) {
       console.log(error)

@@ -17,5 +17,10 @@ Category.hasMany(Item, {
     allowNull: true
   }
 })
-
+Item.belongsTo(Category, {
+  foreignKey: {
+    name: 'category_id',
+    allowNull: true
+  }
+})
 module.exports = connection
